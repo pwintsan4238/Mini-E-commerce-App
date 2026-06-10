@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Mini E-commerce App</string>
+    <string name="title_activity_main">Mini E-commerce App</string>
+    <string name="package_name">com.pwintsan4238.miniecommerceapp</string>
+    <string name="custom_url_scheme">com.pwintsan4238.miniecommerceapp</string>
+</resources>
