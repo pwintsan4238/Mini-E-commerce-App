@@ -199,6 +199,20 @@ export default function ShopCatalog({
                     : 'bg-slate-950 border-slate-900/80 hover:bg-slate-900/45'
                 }`}
               >
+                {/* Visual Indicators for Hot or Value Categories */}
+                {cat.isHot && (
+                  <span className="absolute -top-1 -right-0.5 z-20 flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-550 flex items-center justify-center text-[5px] text-slate-950 font-black">🔥</span>
+                  </span>
+                )}
+                {cat.isValue && (
+                  <span className="absolute -top-1 -right-0.5 z-20 flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 flex items-center justify-center text-[5px] text-slate-950 font-black">🏷️</span>
+                  </span>
+                )}
+
                 <div
                   className={`p-1.5 rounded-lg mb-1 ${
                     isSelected ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 text-slate-400'
@@ -229,8 +243,18 @@ export default function ShopCatalog({
                 className="w-8 h-8 rounded-lg object-cover border border-slate-800"
               />
               <div>
-                <h4 className="font-display font-black text-xs text-white">
-                  {currentCategory.name}
+                <h4 className="font-display font-black text-xs text-white flex items-center gap-1.5 flex-wrap">
+                  <span>{currentCategory.name}</span>
+                  {currentCategory.isHot && (
+                    <span className="bg-amber-500/15 border border-amber-500/30 text-amber-500 text-[8px] font-extrabold px-1.5 py-0.2 rounded uppercase tracking-wider animate-pulse flex items-center gap-0.5">
+                      🔥 Hot item
+                    </span>
+                  )}
+                  {currentCategory.isValue && (
+                    <span className="bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[8px] font-extrabold px-1.5 py-0.2 rounded uppercase tracking-wider flex items-center gap-0.5">
+                      🏷️ Value Buy
+                    </span>
+                  )}
                 </h4>
               </div>
             </div>

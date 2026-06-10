@@ -16,6 +16,7 @@ export const PRODUCTS_DATA: GameCategoryDetail[] = [
     imageUrl: 'https://images.unsplash.com/photo-1611272526047-0190fd427d54?auto=format&fit=crop&q=80&w=400',
     helpText: 'Provide your TikTok Username (e.g. @shwecoin_shop). Order completed within 5-15 mins.',
     requiresServerId: false,
+    isHot: true,
     packages: [
       { id: 'tt_70', name: '70 TikTok Coins', amount: 70, priceMmk: 4200, originalPriceMmk: 4800 },
       { id: 'tt_350', name: '350 TikTok Coins', amount: 350, priceMmk: 19800, originalPriceMmk: 22000, popular: true },
@@ -33,6 +34,7 @@ export const PRODUCTS_DATA: GameCategoryDetail[] = [
     imageUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=400',
     helpText: 'Provide your User ID and Zone ID (e.g. ID: 12345678, Zone: 1234). Direct automatic delivery.',
     requiresServerId: true,
+    isHot: true,
     packages: [
       { id: 'ml_86', name: '86 Diamonds (80 + 6 Bonus)', amount: 86, priceMmk: 5200, originalPriceMmk: 6000 },
       { id: 'ml_172', name: '172 Diamonds (154 + 18 Bonus)', amount: 172, priceMmk: 10200, originalPriceMmk: 12000 },
@@ -66,6 +68,7 @@ export const PRODUCTS_DATA: GameCategoryDetail[] = [
     imageUrl: 'https://images.unsplash.com/photo-1553481187-be93c21490a9?auto=format&fit=crop&q=80&w=400',
     helpText: 'Provide your Player UID (e.g. 84729103). Restock weapon crates and vouchers now.',
     requiresServerId: false,
+    isValue: true,
     packages: [
       { id: 'ff_110', name: '110 Diamonds', amount: 110, priceMmk: 3950, originalPriceMmk: 4500 },
       { id: 'ff_341', name: '341 Diamonds', amount: 341, priceMmk: 11900, originalPriceMmk: 14000, popular: true },
@@ -82,6 +85,7 @@ export const PRODUCTS_DATA: GameCategoryDetail[] = [
     imageUrl: 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&q=80&w=400',
     helpText: 'Provide your Player ID (UID found in Profile settings). Processed within 5-15 mins.',
     requiresServerId: false,
+    isValue: true,
     packages: [
       { id: 'hok_88', name: '88 Tokens', amount: 88, priceMmk: 4200, originalPriceMmk: 4800 },
       { id: 'hok_264', name: '264 Tokens (240 + 24)', amount: 264, priceMmk: 12200, originalPriceMmk: 14000 },

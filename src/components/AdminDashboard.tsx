@@ -27,7 +27,23 @@ import {
   Percent,
   Star,
   RefreshCw,
-  LogOut
+  Receipt,
+  ExternalLink,
+  LogOut,
+  Upload,
+  Flame,
+  Shield,
+  Target,
+  Zap,
+  Swords,
+  Trophy,
+  Gem,
+  Sparkles,
+  Heart,
+  Crown,
+  Gift,
+  Play,
+  Smartphone
 } from 'lucide-react';
 import { Order, OrderStatus, UserDetail, GameCategoryDetail, ProductPackage } from '../types';
 
@@ -80,6 +96,15 @@ export default function AdminDashboard({
 
   // Status/Notifications
   const [actionMessage, setActionMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+  const [activeReceipt, setActiveReceipt] = useState<{
+    url: string;
+    orderId: string;
+    transactionId: string;
+    packageName: string;
+    gameId: string;
+    priceMmk: number;
+    status: string;
+  } | null>(null);
 
   // Product management state:
   const [isAddingProduct, setIsAddingProduct] = useState(false);
@@ -92,6 +117,97 @@ export default function AdminDashboard({
   const [prodIconName, setProdIconName] = useState('Smartphone');
   const [prodImageUrl, setProdImageUrl] = useState('');
   const [prodRequiresServerId, setProdRequiresServerId] = useState(false);
+  const [prodIsHot, setProdIsHot] = useState(false);
+  const [prodIsValue, setProdIsValue] = useState(false);
+
+  // Map of icons for administration configuration choice selection rendering
+  const iconChooserMap: Record<string, React.ComponentType<any>> = {
+    Flame,
+    Shield,
+    Target,
+    Zap,
+    Sword: Swords,
+    Swords,
+    Gamepad2,
+    Trophy,
+    Gem,
+    Sparkles,
+    Coins,
+    ShoppingBag,
+    Smartphone,
+    Play,
+    Heart,
+    Crown,
+    Gift,
+    Star
+  };
+
+  const handleCoverFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (uploadEvent) => {
+        const base64Data = uploadEvent.target?.result as string;
+        setProdImageUrl(base64Data);
+        triggerToast("Cover image successfully converted & uploaded!", "success");
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const renderIconSelector = (currentValue: string, onChangeHandler: (val: string) => void) => {
+    return (
+      <div className="space-y-1.5 col-span-2 bg-slate-950 p-3 rounded-lg border border-slate-900">
+        <div className="flex items-center justify-between">
+          <label className="text-[9px] text-slate-405 block uppercase font-mono font-bold tracking-wider">
+            Choose Category Icon
+          </label>
+          <div className="flex items-center gap-1.5 text-[9px] text-amber-500 font-mono">
+            <span>Current:</span>
+            <span className="font-bold underline">{currentValue}</span>
+          </div>
+        </div>
+        
+        {/* Visual selectable icons grid */}
+        <div className="grid grid-cols-6 sm:grid-cols-9 gap-1.5 max-h-24 overflow-y-auto p-1 bg-slate-900/30 rounded border border-slate-900/50">
+          {Object.keys(iconChooserMap).map((iconKey) => {
+            if (iconKey === 'Swords') return null; // Avoid duplicates with Swords alias
+            const IconComp = iconChooserMap[iconKey] || Smartphone;
+            const isSelected = currentValue === iconKey;
+            return (
+              <button
+                key={iconKey}
+                type="button"
+                onClick={() => onChangeHandler(iconKey)}
+                className={`p-1.5 rounded border flex items-center justify-center transition cursor-pointer ${
+                  isSelected
+                    ? 'bg-amber-500/20 border-amber-500/80 text-amber-400 shadow'
+                    : 'bg-slate-900/40 border-slate-800 text-slate-400 hover:bg-slate-850 hover:text-slate-100'
+                }`}
+                title={iconKey}
+              >
+                <IconComp className="w-3.5 h-3.5" />
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Dynamic add/custom type input */}
+        <div className="pt-1.5 flex items-center gap-2 border-t border-slate-900/60">
+          <span className="text-[8.5px] text-slate-500 uppercase font-mono whitespace-nowrap">
+            Custom Icon Search / Name:
+          </span>
+          <input
+            type="text"
+            value={currentValue}
+            onChange={(e) => onChangeHandler(e.target.value)}
+            placeholder="e.g. Swords, Gamepad2, Coins..."
+            className="flex-1 bg-slate-950 border border-slate-850 rounded px-2.5 py-1 text-[10px] text-white font-mono placeholder-slate-700 focus:outline-none focus:border-amber-500/30"
+          />
+        </div>
+      </div>
+    );
+  };
 
   // Packages local state being edited for chosen product:
   const [editedPackages, setEditedPackages] = useState<ProductPackage[]>([]);
@@ -114,6 +230,8 @@ export default function AdminDashboard({
     setProdIconName(product.iconName);
     setProdImageUrl(product.imageUrl);
     setProdRequiresServerId(product.requiresServerId);
+    setProdIsHot(!!product.isHot);
+    setProdIsValue(!!product.isValue);
     setEditedPackages((product.packages || []).map((pkg, idx) => ({
       ...pkg,
       id: pkg.id || `pkg_${product.id}_${idx}_${Date.now()}`
@@ -136,6 +254,8 @@ export default function AdminDashboard({
           imageUrl: prodImageUrl,
           helpText: prodHelpText,
           requiresServerId: prodRequiresServerId,
+          isHot: prodIsHot,
+          isValue: prodIsValue,
           packages: editedPackages
         })
       });
@@ -848,14 +968,21 @@ export default function AdminDashboard({
                         </div>
 
                         {order.screenshotUrl && (
-                          <a 
-                            href={order.screenshotUrl} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-900 hover:border-amber-500/40 transition-colors"
+                          <button 
+                            type="button"
+                            onClick={() => setActiveReceipt({
+                              url: order.screenshotUrl || '',
+                              orderId: order.id,
+                              transactionId: order.transactionId,
+                              packageName: order.packageName,
+                              gameId: order.gameId,
+                              priceMmk: order.priceMmk,
+                              status: order.status
+                            })}
+                            className="inline-flex items-center gap-1 bg-slate-950 px-2 py-1 rounded-md border border-slate-900 hover:border-amber-500/40 transition-colors cursor-pointer text-amber-400 font-extrabold text-[8px] font-mono hover:underline"
                           >
-                            <span className="text-amber-305 font-extrabold text-[8px] block font-mono hover:underline">VIEW RECEIPT</span>
-                          </a>
+                            <span>VIEW RECEIPT</span>
+                          </button>
                         )}
                       </div>
 
@@ -1242,7 +1369,9 @@ export default function AdminDashboard({
                       iconName: prodIconName,
                       imageUrl: prodImageUrl,
                       helpText: prodHelpText,
-                      requiresServerId: prodRequiresServerId
+                      requiresServerId: prodRequiresServerId,
+                      isHot: prodIsHot,
+                      isValue: prodIsValue
                     })
                   });
                   const data = await res.json();
@@ -1255,6 +1384,8 @@ export default function AdminDashboard({
                     setProdIconName('Smartphone');
                     setProdImageUrl('');
                     setProdRequiresServerId(false);
+                    setProdIsHot(false);
+                    setProdIsValue(false);
                     triggerToast(`New product "${data.data.name}" catalog added! Edit details to append bundles.`, 'success');
                   } else {
                     triggerToast(data.error || 'Failed to add product.', 'error');
@@ -1298,34 +1429,72 @@ export default function AdminDashboard({
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-[9px] text-slate-400 block uppercase font-mono">{t.adminChooseIconLabel || "Choose Icon"}</label>
-                  <select
-                    value={prodIconName}
-                    onChange={(e) => setProdIconName(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1.5 text-xs text-white font-mono"
-                  >
-                    <option value="Flame">Flame 🔥 (TikTok)</option>
-                    <option value="Shield">Shield 🛡️ (MLBB)</option>
-                    <option value="Target">Target 🎯 (PUBG UC)</option>
-                    <option value="Zap">Zap ⚡ (Free Fire)</option>
-                    <option value="Sword">Sword ⚔️ (HOK / Weapons)</option>
-                    <option value="Smartphone">Smartphone 📱 (General Fallback)</option>
-                  </select>
+                {renderIconSelector(prodIconName, setProdIconName)}
+
+                {/* Professional Cover Image File Drag & Drop + URL Input */}
+                <div className="space-y-1.5 col-span-2 pt-1 border-t border-slate-800/40">
+                  <label className="text-[9px] text-slate-400 block uppercase font-mono font-bold">
+                    Category Cover Image Target
+                  </label>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 items-center">
+                    <div className="md:col-span-2">
+                      <div className="relative border-2 border-dashed border-slate-800 hover:border-amber-500/40 rounded-lg p-3 bg-slate-950/40 text-center transition duration-150">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleCoverFileChange}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                        />
+                        <div className="flex flex-col items-center justify-center gap-1">
+                          <Upload className="w-5 h-5 text-amber-500/80 hover:scale-105 transition-all" />
+                          <span className="text-[10px] font-bold text-slate-300">
+                            Drag & drop or Click to upload cover image
+                          </span>
+                          <span className="text-[8px] text-slate-500">
+                            PNG, JPG, WebP, GIF (Saves offline in Base64 string format)
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col items-center justify-center bg-slate-950 rounded-lg p-1.5 border border-slate-900 h-24 relative overflow-hidden">
+                      {prodImageUrl ? (
+                        <>
+                          <img
+                            src={prodImageUrl}
+                            alt="Cover preview"
+                            className="w-full h-full object-cover rounded-md"
+                            referrerPolicy="no-referrer"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setProdImageUrl('')}
+                            className="absolute top-1 right-1 bg-slate-950/80 hover:bg-rose-950 border border-slate-800 text-slate-400 hover:text-white p-1 rounded-full text-[9px] transition-colors"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </>
+                      ) : (
+                        <span className="text-[9px] text-slate-500 block text-center font-mono py-8">
+                          No Preview
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-1 pt-1.5">
+                    <span className="text-[8.5px] text-slate-500 uppercase font-mono">Or paste custom image URL:</span>
+                    <input
+                      type="text"
+                      placeholder="https://images.unsplash.com/..."
+                      value={prodImageUrl}
+                      onChange={(e) => setProdImageUrl(e.target.value)}
+                      className="w-full bg-slate-950 border border-slate-850 rounded px-2.5 py-1 text-[11px] text-white font-mono"
+                    />
+                  </div>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-[9px] text-slate-400 block uppercase font-mono">{t.adminCoverImageUrlLabel || "Cover Image URL"}</label>
-                  <input
-                    type="text"
-                    placeholder="https://images.unsplash.com/..."
-                    value={prodImageUrl}
-                    onChange={(e) => setProdImageUrl(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-white font-mono"
-                  />
-                </div>
-
-                <div className="col-span-2 space-y-1">
+                <div className="col-span-2 space-y-1 pt-1.5 border-t border-slate-800/40">
                   <label className="text-[9px] text-slate-400 block uppercase font-mono">{t.adminInstructionsHelpLabel || "Instructions Helptext"}</label>
                   <textarea
                     rows={2}
@@ -1336,17 +1505,48 @@ export default function AdminDashboard({
                   />
                 </div>
 
-                <div className="col-span-2 flex items-center gap-2 pt-1">
-                  <input
-                    type="checkbox"
-                    id="req-srv-chk"
-                    checked={prodRequiresServerId}
-                    onChange={(e) => setProdRequiresServerId(e.target.checked)}
-                    className="w-4 h-4 rounded border-slate-800 accent-amber-500 text-slate-950"
-                  />
-                  <label htmlFor="req-srv-chk" className="text-[10px] text-slate-300 font-bold select-none cursor-pointer">
-                    {t.adminRequiresServerIdLabel || "Requires Server/Zone ID during form top-up checkout?"}
-                  </label>
+                <div className="col-span-2 space-y-1.5 border-t border-slate-800/40 pt-2">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="req-srv-chk"
+                      checked={prodRequiresServerId}
+                      onChange={(e) => setProdRequiresServerId(e.target.checked)}
+                      className="w-4 h-4 rounded border-slate-800 accent-amber-500 text-slate-950"
+                    />
+                    <label htmlFor="req-srv-chk" className="text-[10px] text-slate-300 font-bold select-none cursor-pointer">
+                      {t.adminRequiresServerIdLabel || "Requires Server/Zone ID during form top-up checkout?"}
+                    </label>
+                  </div>
+                </div>
+
+                {/* Hot and Value configuration switches */}
+                <div className="col-span-2 grid grid-cols-2 gap-2.5 pt-2 border-t border-slate-800/40">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="cat-hot-chk"
+                      checked={prodIsHot}
+                      onChange={(e) => setProdIsHot(e.target.checked)}
+                      className="w-4 h-4 rounded border-slate-800 accent-amber-500 text-slate-950 cursor-pointer"
+                    />
+                    <label htmlFor="cat-hot-chk" className="text-[10px] text-slate-300 font-bold select-none cursor-pointer flex items-center gap-1">
+                      <Flame className="w-3.5 h-3.5 text-amber-500 fill-amber-500/20" /> Is Hot Category / Hot Item?
+                    </label>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="cat-value-chk"
+                      checked={prodIsValue}
+                      onChange={(e) => setProdIsValue(e.target.checked)}
+                      className="w-4 h-4 rounded border-slate-800 accent-emerald-500 text-slate-950 cursor-pointer"
+                    />
+                    <label htmlFor="cat-value-chk" className="text-[10px] text-slate-300 font-bold select-none cursor-pointer flex items-center gap-1">
+                      <Tag className="w-3.5 h-3.5 text-emerald-400" /> Is Value Category / Value Item?
+                    </label>
+                  </div>
                 </div>
               </div>
 
@@ -1732,33 +1932,72 @@ export default function AdminDashboard({
                           />
                         </div>
 
-                        <div className="space-y-1">
-                          <label className="text-[9px] text-slate-400 block uppercase font-mono">{t.adminChooseIconLabel || "Choose Icon"}</label>
-                          <select
-                            value={prodIconName}
-                            onChange={(e) => setProdIconName(e.target.value)}
-                            className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1.5 text-xs text-white font-mono focus:border-amber-500/55 focus:outline-none"
-                          >
-                            <option value="Flame">Flame 🔥</option>
-                            <option value="Shield">Shield 🛡️</option>
-                            <option value="Target">Target 🎯</option>
-                            <option value="Zap">Zap ⚡</option>
-                            <option value="Sword">Sword ⚔️</option>
-                            <option value="Smartphone">Smartphone 📱</option>
-                          </select>
+                        {renderIconSelector(prodIconName, setProdIconName)}
+
+                        {/* Professional Cover Image File Drag & Drop + URL Input */}
+                        <div className="space-y-1.5 col-span-2 pt-1 border-t border-slate-800/40">
+                          <label className="text-[9px] text-slate-400 block uppercase font-mono font-bold">
+                            Category Cover Image Target
+                          </label>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 items-center">
+                            <div className="md:col-span-2">
+                              <div className="relative border-2 border-dashed border-slate-800 hover:border-amber-500/40 rounded-lg p-3 bg-slate-950/40 text-center transition duration-150">
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={handleCoverFileChange}
+                                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                />
+                                <div className="flex flex-col items-center justify-center gap-1">
+                                  <Upload className="w-5 h-5 text-amber-500/80 hover:scale-105 transition-all" />
+                                  <span className="text-[10px] font-bold text-slate-300">
+                                    Drag & drop or Click to upload cover image
+                                  </span>
+                                  <span className="text-[8px] text-slate-500">
+                                    PNG, JPG, WebP, GIF (Saves offline in Base64 string format)
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex flex-col items-center justify-center bg-slate-950 rounded-lg p-1.5 border border-slate-900 h-24 relative overflow-hidden">
+                              {prodImageUrl ? (
+                                <>
+                                  <img
+                                    src={prodImageUrl}
+                                    alt="Cover preview"
+                                    className="w-full h-full object-cover rounded-md"
+                                    referrerPolicy="no-referrer"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => setProdImageUrl('')}
+                                    className="absolute top-1 right-1 bg-slate-950/80 hover:bg-rose-950 border border-slate-800 text-slate-400 hover:text-white p-1 rounded-full text-[9px] transition-colors"
+                                  >
+                                    <X className="w-3.5 h-3.5" />
+                                  </button>
+                                </>
+                              ) : (
+                                <span className="text-[9px] text-slate-550 block text-center font-mono py-8">
+                                  No Preview
+                                  </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 gap-1 pt-1.5">
+                            <span className="text-[8.5px] text-slate-500 uppercase font-mono">Or paste custom image URL:</span>
+                            <input
+                              type="text"
+                              placeholder="https://images.unsplash.com/..."
+                              value={prodImageUrl}
+                              onChange={(e) => setProdImageUrl(e.target.value)}
+                              className="w-full bg-slate-950 border border-slate-850 rounded px-2.5 py-1 text-[11px] text-white font-mono focus:border-amber-500/55 focus:outline-none"
+                            />
+                          </div>
                         </div>
 
-                        <div className="space-y-1">
-                          <label className="text-[9px] text-slate-400 block uppercase font-mono">{t.adminCoverImageUrlLabel || "Cover Image URL"}</label>
-                          <input
-                            type="text"
-                            value={prodImageUrl}
-                            onChange={(e) => setProdImageUrl(e.target.value)}
-                            className="w-full bg-slate-950 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-white font-mono focus:border-amber-500/55 focus:outline-none"
-                          />
-                        </div>
-
-                        <div className="col-span-2 space-y-1">
+                        <div className="col-span-2 space-y-1 pt-1.5 border-t border-slate-800/40">
                           <label className="text-[9px] text-slate-400 block uppercase font-mono">{t.adminInstructionsHelpLabel || "Instructions Helptext"}</label>
                           <textarea
                             rows={2}
@@ -1768,17 +2007,48 @@ export default function AdminDashboard({
                           />
                         </div>
 
-                        <div className="col-span-2 flex items-center gap-2">
-                          <input
-                            type="checkbox"
-                            id="edit-req-srv-chk"
-                            checked={prodRequiresServerId}
-                            onChange={(e) => setProdRequiresServerId(e.target.checked)}
-                            className="w-4 h-4 rounded border-slate-800 accent-amber-500 text-slate-950 cursor-pointer"
-                          />
-                          <label htmlFor="edit-req-srv-chk" className="text-[10px] text-slate-300 font-bold select-none cursor-pointer">
-                            {t.adminRequiresServerIdLabel || "Requires Server/Zone ID during form top-up checkout?"}
-                          </label>
+                        <div className="col-span-2 space-y-1.5 border-t border-slate-800/40 pt-2">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              id="edit-req-srv-chk"
+                              checked={prodRequiresServerId}
+                              onChange={(e) => setProdRequiresServerId(e.target.checked)}
+                              className="w-4 h-4 rounded border-slate-800 accent-amber-500 text-slate-950 cursor-pointer"
+                            />
+                            <label htmlFor="edit-req-srv-chk" className="text-[10px] text-slate-350 font-bold select-none cursor-pointer">
+                              {t.adminRequiresServerIdLabel || "Requires Server/Zone ID during form top-up checkout?"}
+                            </label>
+                          </div>
+                        </div>
+
+                        {/* Hot and Value configuration switches */}
+                        <div className="col-span-2 grid grid-cols-2 gap-2.5 pt-2 border-t border-slate-800/40">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              id="edit-cat-hot-chk"
+                              checked={prodIsHot}
+                              onChange={(e) => setProdIsHot(e.target.checked)}
+                              className="w-4 h-4 rounded border-slate-800 accent-amber-500 text-slate-950 cursor-pointer"
+                            />
+                            <label htmlFor="edit-cat-hot-chk" className="text-[10px] text-slate-350 font-bold select-none cursor-pointer flex items-center gap-1">
+                              <Flame className="w-3.5 h-3.5 text-amber-500 fill-amber-500/20" /> Is Hot Category / Hot Item?
+                            </label>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              id="edit-cat-value-chk"
+                              checked={prodIsValue}
+                              onChange={(e) => setProdIsValue(e.target.checked)}
+                              className="w-4 h-4 rounded border-slate-800 accent-emerald-500 text-slate-950 cursor-pointer"
+                            />
+                            <label htmlFor="edit-cat-value-chk" className="text-[10px] text-slate-350 font-bold select-none cursor-pointer flex items-center gap-1">
+                              <Tag className="w-3.5 h-3.5 text-emerald-400" /> Is Value Category / Value Item?
+                            </label>
+                          </div>
                         </div>
                       </div>
 
@@ -2022,6 +2292,16 @@ export default function AdminDashboard({
                       <h4 className="font-display font-black text-white text-xs flex items-center gap-1.5 flex-wrap group-hover:text-amber-400 transition">
                         <span>{product.name}</span>
                         <span className="text-[9px] text-slate-500 font-mono font-normal">({product.id})</span>
+                        {product.isHot && (
+                          <span className="bg-amber-500/20 border border-amber-500/30 text-amber-500 text-[8px] font-extrabold px-1.5 py-0.2 rounded uppercase">
+                            🔥 Hot Category
+                          </span>
+                        )}
+                        {product.isValue && (
+                          <span className="bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-[8px] font-extrabold px-1.5 py-0.2 rounded uppercase">
+                            🏷️ Best Value
+                          </span>
+                        )}
                       </h4>
                       <p className="text-[10px] text-slate-400 font-sans tracking-wide mt-0.5">{product.tagline}</p>
                     </div>
@@ -2092,6 +2372,108 @@ export default function AdminDashboard({
             )}
           </div>
 
+        </div>
+      )}
+
+      {/* Admin screen overlay lightbox for receipts/screenshots. Fixes non-clickable base64 URLs / iframe blocks */}
+      {activeReceipt && (
+        <div 
+          className="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-3 animate-fade-in"
+          onClick={() => setActiveReceipt(null)}
+        >
+          <div 
+            className="bg-slate-900 border border-slate-800 rounded-xl max-w-sm w-full overflow-hidden text-slate-200 relative shadow-2xl animate-scale-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="p-3 bg-slate-950 border-b border-slate-900 flex justify-between items-center">
+              <div className="flex items-center gap-1.5">
+                <Receipt className="w-4 h-4 text-amber-500 animate-pulse" />
+                <span className="font-display font-black text-xs text-white uppercase tracking-wider">
+                  Admin Voucher Review
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveReceipt(null)}
+                className="w-10 h-10 -mr-2 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-850 rounded-full transition-colors cursor-pointer"
+                aria-label="Close modal"
+              >
+                <X className="w-5 h-5 text-slate-300 hover:text-white" />
+              </button>
+            </div>
+
+            {/* Receipt Image Box */}
+            <div className="p-3 bg-slate-950 flex justify-center items-center h-80 border-b border-slate-900 overflow-hidden relative group">
+              <img
+                src={activeReceipt.url}
+                alt="Payment proof screenshot"
+                className="max-h-full max-w-full object-contain rounded-md shadow-lg"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+
+            {/* Metadata Parameters Grid */}
+            <div className="p-3.5 bg-slate-900 space-y-2 text-xs font-mono">
+              <div className="grid grid-cols-2 gap-1 text-[10px] sm:text-[10.5px] border-b border-slate-800/40 pb-1.5">
+                <span className="text-slate-500 uppercase font-bold">Ticket ID:</span>
+                <span className="text-slate-200 font-extrabold text-right select-all">{activeReceipt.orderId.toUpperCase()}</span>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-1 text-[10px] sm:text-[10.5px] border-b border-slate-800/40 pb-1.5">
+                <span className="text-slate-500 uppercase font-bold text-slate-400">TXID:</span>
+                <span className="text-slate-250 font-bold select-all text-right break-all">{activeReceipt.transactionId}</span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-1 text-[10px] sm:text-[10.5px] border-b border-slate-800/40 pb-1.5">
+                <span className="text-slate-500 uppercase font-bold">Item & Package:</span>
+                <span className="text-amber-400 font-extrabold text-right truncate" title={activeReceipt.packageName}>{activeReceipt.packageName}</span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-1 text-[10px] sm:text-[10.5px] border-b border-slate-800/40 pb-1.5">
+                <span className="text-slate-500 uppercase font-bold">Price MMK:</span>
+                <span className="text-emerald-400 font-black text-right">{activeReceipt.priceMmk.toLocaleString()}&nbsp;MMK</span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-1 text-[10px] sm:text-[10.5px]">
+                <span className="text-slate-500 uppercase font-bold">Status:</span>
+                <span className="text-right">
+                  <span className={`inline-block font-extrabold px-1.5 py-0.5 rounded text-[9px] ${
+                    activeReceipt.status === 'completed'
+                      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                      : activeReceipt.status === 'cancelled'
+                      ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                      : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                  }`}>
+                    {activeReceipt.status.toUpperCase()}
+                  </span>
+                </span>
+              </div>
+            </div>
+
+            {/* Bottom Button Rows with minimum 44px hit sizes for high-usability tap response */}
+            <div className="p-3 bg-slate-950 border-t border-slate-900 flex gap-2">
+              <a
+                href={activeReceipt.url}
+                download={`admin-ticket-${activeReceipt.orderId.slice(-6).toUpperCase()}.png`}
+                target="_blank"
+                rel="noreferrer"
+                className="flex-1 bg-slate-900 hover:bg-slate-850 hover:text-white border border-slate-800 hover:border-slate-750 text-slate-300 text-center rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 min-h-[44px]"
+              >
+                <span>Save Offline</span>
+                <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
+              </a>
+
+              <button
+                type="button"
+                onClick={() => setActiveReceipt(null)}
+                className="flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 hover:scale-[1.01] rounded-lg font-black text-[10px] sm:text-[11px] uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px]"
+              >
+                Close
+              </button>
+            </div>
+
+          </div>
         </div>
       )}
 

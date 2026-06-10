@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   History, 
   HelpCircle, 
@@ -11,7 +11,8 @@ import {
   Clock, 
   ExternalLink,
   AlertTriangle,
-  Receipt
+  Receipt,
+  X
 } from 'lucide-react';
 import { Order } from '../types';
 
@@ -30,6 +31,16 @@ export default function OrderHistory({
   t
 }: OrderHistoryProps) {
   
+  const [activeReceipt, setActiveReceipt] = useState<{
+    url: string;
+    orderId: string;
+    transactionId: string;
+    packageName: string;
+    gameId: string;
+    priceMmk: number;
+    status: string;
+  } | null>(null);
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
@@ -150,16 +161,22 @@ export default function OrderHistory({
                   </div>
                   
                   {order.screenshotUrl && (
-                    <a 
-                      href={order.screenshotUrl} 
-                      target="_blank" 
-                      rel="noreferrer"
-                      className="text-amber-400 flex items-center gap-0.5 hover:underline bg-slate-950 px-1.5 py-0.5 rounded border border-slate-900 transition-colors hover:text-amber-300"
+                    <button 
+                      type="button"
+                      onClick={() => setActiveReceipt({
+                        url: order.screenshotUrl || '',
+                        orderId: order.id,
+                        transactionId: order.transactionId,
+                        packageName: order.packageName,
+                        gameId: order.gameId,
+                        priceMmk: order.priceMmk,
+                        status: order.status
+                      })}
+                      className="text-amber-400 bg-slate-950 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-900 transition-colors hover:bg-slate-900 hover:text-amber-300 cursor-pointer min-h-[38px]"
                     >
-                      <Receipt className="w-2.5 h-2.5 text-amber-500" /> 
-                      <span>{t.viewReceipt || "Voucher"}</span>
-                      <ExternalLink className="w-2 h-2 text-slate-500" />
-                    </a>
+                      <Receipt className="w-3.5 h-3.5 text-amber-500" /> 
+                      <span className="text-[10px] sm:text-[11px] font-bold">{t.viewReceipt || "Voucher"}</span>
+                    </button>
                   )}
                 </div>
 
@@ -195,6 +212,108 @@ export default function OrderHistory({
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Dynamic Screen Overlay Lightbox Receipt Modal */}
+      {activeReceipt && (
+        <div 
+          className="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-3 animate-fade-in"
+          onClick={() => setActiveReceipt(null)}
+        >
+          <div 
+            className="bg-slate-900 border border-slate-800 rounded-xl max-w-sm w-full overflow-hidden text-slate-200 relative shadow-2xl animate-scale-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="p-3 bg-slate-950 border-b border-slate-900 flex justify-between items-center">
+              <div className="flex items-center gap-1.5">
+                <Receipt className="w-4 h-4 text-amber-500 animate-pulse" />
+                <span className="font-display font-black text-xs text-white uppercase tracking-wider">
+                  Payment Receipt Voucher
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveReceipt(null)}
+                className="w-10 h-10 -mr-2 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-850 rounded-full transition-colors cursor-pointer"
+                aria-label="Close modal"
+              >
+                <X className="w-5 h-5 text-slate-300 hover:text-white" />
+              </button>
+            </div>
+
+            {/* Receipt Image Box */}
+            <div className="p-3 bg-slate-950 flex justify-center items-center h-80 border-b border-slate-900 overflow-hidden relative group">
+              <img
+                src={activeReceipt.url}
+                alt="Payment proof screenshot"
+                className="max-h-full max-w-full object-contain rounded-md shadow-lg"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+
+            {/* Metadata Parameters Grid */}
+            <div className="p-3.5 bg-slate-900 space-y-2 text-xs font-mono">
+              <div className="grid grid-cols-2 gap-1 text-[10px] sm:text-[10.5px] border-b border-slate-800/40 pb-1.5">
+                <span className="text-slate-500 uppercase font-bold">Ticket:</span>
+                <span className="text-slate-200 font-extrabold text-right">{activeReceipt.orderId.toUpperCase()}</span>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-1 text-[10px] sm:text-[10.5px] border-b border-slate-800/40 pb-1.5">
+                <span className="text-slate-500 uppercase font-bold">TXID:</span>
+                <span className="text-slate-250 font-bold select-all text-right break-all">{activeReceipt.transactionId}</span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-1 text-[10px] sm:text-[10.5px] border-b border-slate-800/40 pb-1.5">
+                <span className="text-slate-500 uppercase font-bold font-mono">Bundle/Pack:</span>
+                <span className="text-amber-400 font-extrabold text-right truncate" title={activeReceipt.packageName}>{activeReceipt.packageName}</span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-1 text-[10px] sm:text-[10.5px] border-b border-slate-800/40 pb-1.5">
+                <span className="text-slate-500 uppercase font-bold">Price MMK:</span>
+                <span className="text-emerald-400 font-black text-right">{activeReceipt.priceMmk.toLocaleString()}&nbsp;MMK</span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-1 text-[10px] sm:text-[10.5px]">
+                <span className="text-slate-500 uppercase font-bold">Status:</span>
+                <span className="text-right">
+                  <span className={`inline-block font-extrabold px-1.5 py-0.5 rounded text-[9px] ${
+                    activeReceipt.status === 'completed'
+                      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                      : activeReceipt.status === 'cancelled'
+                      ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                      : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                  }`}>
+                    {activeReceipt.status.toUpperCase()}
+                  </span>
+                </span>
+              </div>
+            </div>
+
+            {/* Bottom Button Rows with minimum 44px hit sizes for high-usability tap response */}
+            <div className="p-3 bg-slate-950 border-t border-slate-900 flex gap-2">
+              <a
+                href={activeReceipt.url}
+                download={`ticket-${activeReceipt.orderId.slice(-6).toUpperCase()}.png`}
+                target="_blank"
+                rel="noreferrer"
+                className="flex-1 bg-slate-900 hover:bg-slate-850 hover:text-white border border-slate-800 hover:border-slate-750 text-slate-300 text-center rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 min-h-[44px]"
+              >
+                <span>Save Offline</span>
+                <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
+              </a>
+
+              <button
+                type="button"
+                onClick={() => setActiveReceipt(null)}
+                className="flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 hover:scale-[1.01] rounded-lg font-black text-[10px] sm:text-[11px] uppercase tracking-wider transition-all duration-150 cursor-pointer min-h-[44px]"
+              >
+                Done
+              </button>
+            </div>
+
+          </div>
         </div>
       )}
 

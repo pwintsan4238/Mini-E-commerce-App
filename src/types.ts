@@ -24,6 +24,8 @@ export interface GameCategoryDetail {
   packages: ProductPackage[];
   helpText: string;
   requiresServerId: boolean; // True for MLBB, false for TikTok/PUBG (who use TikTok ID, Player ID)
+  isHot?: boolean;
+  isValue?: boolean;
 }
 
 export type OrderStatus = 'pending' | 'processing' | 'completed' | 'cancelled';

@@ -208,7 +208,7 @@ app.get('/api/products', (req, res) => {
 
 app.post('/api/products', (req, res) => {
   try {
-    const { name, tagline, iconName, imageUrl, helpText, requiresServerId } = req.body;
+    const { name, tagline, iconName, imageUrl, helpText, requiresServerId, isHot, isValue } = req.body;
     if (!name) {
       res.status(400).json({ success: false, error: 'Product name is required.' });
       return;
@@ -226,6 +226,8 @@ app.post('/api/products', (req, res) => {
       imageUrl: imageUrl || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=400',
       helpText: helpText || '',
       requiresServerId: !!requiresServerId,
+      isHot: !!isHot,
+      isValue: !!isValue,
       packages: []
     };
     dbProducts.push(newProduct);
@@ -238,7 +240,7 @@ app.post('/api/products', (req, res) => {
 app.put('/api/products/:id', (req, res) => {
   try {
     const { id } = req.params;
-    const { name, tagline, iconName, imageUrl, helpText, requiresServerId, packages } = req.body;
+    const { name, tagline, iconName, imageUrl, helpText, requiresServerId, packages, isHot, isValue } = req.body;
     const prodIndex = dbProducts.findIndex((p: any) => p.id === id);
     if (prodIndex === -1) {
       res.status(404).json({ success: false, error: 'Product not found.' });
@@ -251,6 +253,8 @@ app.put('/api/products/:id', (req, res) => {
     if (imageUrl !== undefined) dbProducts[prodIndex].imageUrl = imageUrl;
     if (helpText !== undefined) dbProducts[prodIndex].helpText = helpText;
     if (requiresServerId !== undefined) dbProducts[prodIndex].requiresServerId = !!requiresServerId;
+    if (isHot !== undefined) dbProducts[prodIndex].isHot = !!isHot;
+    if (isValue !== undefined) dbProducts[prodIndex].isValue = !!isValue;
     if (packages !== undefined) dbProducts[prodIndex].packages = packages;
 
     res.json({ success: true, data: dbProducts[prodIndex] });
