@@ -1,0 +1,6 @@
+{
+  "appId": "com.pwintsan4238.miniecommerceapp",
+  "appName": "Mini E-commerce App",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}
