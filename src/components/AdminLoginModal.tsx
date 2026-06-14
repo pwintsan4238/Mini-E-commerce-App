@@ -33,11 +33,11 @@ export default function AdminLoginModal({
       const cleanUser = username.trim().toLowerCase();
       const cleanPass = password.trim();
 
-      if (cleanUser === 'admin' && (cleanPass === 'admin123' || cleanPass === 'shwecoinadmin')) {
+      if ((cleanUser === 'admin' && cleanPass === 'admin@4238') || (cleanUser === 'adminstar' && cleanPass === 'admin@660252')) {
         // Success
         onLoginSuccess();
       } else {
-        setError('Unauthorized: Invalid credentials. Use "admin" & "admin123" to enter!');
+        setError('Unauthorized: Invalid credentials. Use "admin" & "admin@4238" or "adminstar" & "admin@660252" to enter!');
         setLoading(false);
       }
     }, 600);
@@ -82,7 +82,7 @@ export default function AdminLoginModal({
           {error && (
             <div className="bg-red-500/15 border border-red-500/10 p-2.5 rounded-lg text-[10.5px] text-red-400 flex items-center gap-1.5 animate-bounce">
               <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
-              <span>{t.adminInvalidCredentials || "Unauthorized: Invalid credentials."} Use "admin" & "admin123"!</span>
+              <span>{t.adminInvalidCredentials || "Unauthorized: Invalid credentials."} Use "admin" & "admin@4238" or "adminstar" & "admin@660252"!</span>
             </div>
           )}
 
@@ -134,7 +134,7 @@ export default function AdminLoginModal({
 
           {/* Tips for Sandbox */}
           <div className="bg-slate-950 p-2 rounded-lg border border-slate-900 text-[9.5px] text-slate-500 text-center font-mono leading-relaxed select-none">
-            {t.adminDemoDetails || "Demo Details"}: <strong className="text-slate-300 font-sans">admin</strong> & <strong className="text-slate-300 font-sans">admin123</strong>
+            {t.adminDemoDetails || "Demo Details"}: <strong className="text-slate-300 font-sans">admin</strong> & <strong className="text-slate-300 font-sans">admin@4238</strong> — <strong className="text-slate-300 font-sans">adminstar</strong> & <strong className="text-slate-300 font-sans">admin@660252</strong>
           </div>
 
           <button
