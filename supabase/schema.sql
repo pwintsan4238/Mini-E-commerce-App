@@ -1,8 +1,11 @@
 -- Supabase / Postgres schema for Mini-E-commerce-App
 -- Run this using the Supabase SQL editor or psql connected to your Supabase DB
 
+-- Requires pgcrypto extension for gen_random_uuid()
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 CREATE TABLE IF NOT EXISTS "users" (
-  id text PRIMARY KEY,
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   "telegramUsername" text UNIQUE NOT NULL,
   "displayName" text,
   "contactPhone" text,
@@ -10,7 +13,8 @@ CREATE TABLE IF NOT EXISTS "users" (
   "coinsBalance" integer DEFAULT 0,
   "totalOrdersCount" integer DEFAULT 0,
   "approved" boolean DEFAULT false,
-  created_at timestamptz DEFAULT now()
+  created_at timestamptz DEFAULT now(),
+  "updatedAt" timestamptz
 );
 
 CREATE TABLE IF NOT EXISTS "products" (

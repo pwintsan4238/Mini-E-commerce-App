@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS users (
   totalOrdersCount INTEGER DEFAULT 0,
   approved BOOLEAN DEFAULT false,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-  updated_at TIMESTAMP WITH TIME ZONE
+  updatedAt TIMESTAMP WITH TIME ZONE
 );
 
 -- Orders table
