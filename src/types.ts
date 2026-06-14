@@ -65,5 +65,6 @@ export interface UserDetail {
   joinedAt: string;
   coinsBalance: number;
   totalOrdersCount: number;
+  approved: boolean; // true when an admin has approved the user
 }
 

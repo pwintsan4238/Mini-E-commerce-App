@@ -32,11 +32,11 @@ const GET_CHIPS_FOR_LANG = (lang: Language) => {
       { text: 'ဝယ်ယူနည်း ပြောပြပေးပါ', icon: 'ℹ️' }
     ];
   }
-  return [
+    return [
     { text: 'MLBB rates in MMK', icon: '💎' },
     { text: 'TikTok Coins list', icon: '🪙' },
     { text: 'What is the exchange rate', icon: '💵' },
-    { text: 'How do I buy coins', icon: 'ℹ️' }
+    { text: 'How do I order coins', icon: 'ℹ️' }
   ];
 };
 
@@ -200,7 +200,7 @@ export default function AiAssistant({
 
       // Attempt immediate offline fallback client-side
       setTimeout(() => {
-        let matchedResponse = "I could not connect to our bot. Please try asking about 'payment' or 'rates'.";
+        let matchedResponse = "I could not connect to our bot. Please try asking about 'rates' or 'order methods'.";
         const q = textToSend.toLowerCase().trim();
         const words = q.split(/[\s,.\-/?!_()+]+/g).filter(w => w.length >= 2 || (w >= "\u1000" && w <= "\u109F"));
         
@@ -316,7 +316,7 @@ export default function AiAssistant({
                 </span>
                 <form onSubmit={handleAddFeed} className="space-y-2">
                   <div>
-                    <label className="text-[9px] text-slate-400 block mb-1">Trigger Keywords (space-separated, e.g. "discount refund kbzpay")</label>
+                    <label className="text-[9px] text-slate-400 block mb-1">Trigger Keywords (space-separated, e.g. "discount refund kbz wave")</label>
                     <input
                       type="text"
                       value={newTrigger}

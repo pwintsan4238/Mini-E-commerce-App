@@ -250,9 +250,9 @@ export default function ShopCatalog({
                       🔥 Hot item
                     </span>
                   )}
-                  {currentCategory.isValue && (
+                    {currentCategory.isValue && (
                     <span className="bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[8px] font-extrabold px-1.5 py-0.2 rounded uppercase tracking-wider flex items-center gap-0.5">
-                      🏷️ Value Buy
+                      🏷️ Best Value
                     </span>
                   )}
                 </h4>
@@ -459,7 +459,7 @@ export default function ShopCatalog({
             )}
           </div>
 
-          {/* CTA Proceed Checkout Form Integration */}
+          {/* CTA Proceed Integration */}
           <div className="pt-1">
             {selectedPkgId && currentCategory.packages.find(pk => pk.id === selectedPkgId) ? (
               <button
@@ -470,11 +470,11 @@ export default function ShopCatalog({
                 }}
                 className="w-full bg-gradient-to-r from-amber-500 to-amber-400 text-slate-950 py-2.5 rounded-lg font-black text-xs uppercase flex items-center justify-center gap-1 cursor-pointer transition-all hover:brightness-105 active:scale-95"
               >
-                {t.proceedCheckout || "Checkout"} <ArrowRight className="w-3.5 h-3.5" />
+                {t.proceedCheckout || "Proceed"} <ArrowRight className="w-3.5 h-3.5" />
               </button>
             ) : (
               <div className="text-center py-2 rounded-lg border border-dashed border-slate-900 bg-slate-950 text-[10px] text-slate-500">
-                {t.selectPackagePrompt || "Select item to checkout"}
+                {t.selectPackagePrompt || "Select item"}
               </div>
             )}
           </div>
@@ -546,7 +546,7 @@ export default function ShopCatalog({
             })}
           </div>
 
-          {/* Check sum and Pay button */}
+          {/* Check sum and Action button */}
           <div className="flex items-center justify-between pt-1">
             <div>
               <span className="text-[7.5px] text-slate-500 block uppercase font-mono leading-none font-black">GRAND TOTAL</span>
@@ -560,7 +560,7 @@ export default function ShopCatalog({
               onClick={onCheckoutCart}
               className="bg-gradient-to-r from-amber-500 to-amber-400 hover:brightness-105 text-slate-950 px-3.5 py-1.5 rounded-lg font-black text-[10px] uppercase flex items-center justify-center gap-1 cursor-pointer transition-all shadow-md shadow-amber-500/10 active:scale-95"
             >
-              <span>Checkout Cart</span>
+              <span>Cart Summary</span>
               <ArrowRight className="w-3 h-3" />
             </button>
           </div>

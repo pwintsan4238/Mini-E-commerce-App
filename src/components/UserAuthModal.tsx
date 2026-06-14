@@ -127,11 +127,11 @@ export default function UserAuthModal({
           </button>
         </div>
 
-        {/* Checkout requirement notice */}
+        {/* Sign-in requirement notice */}
         <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2.5 flex items-start gap-2 text-[10.5px] text-amber-200 leading-normal">
           <LogIn className="w-3.5 h-3.5 shrink-0 mt-0.5 text-amber-400" />
           <span>
-            Please register or sign in using your Telegram username to proceed with your Coins purchase securely.
+            Please register or sign in using your Telegram username to proceed with your Coins securely.
           </span>
         </div>
 
@@ -291,7 +291,7 @@ export default function UserAuthModal({
                 disabled={loading}
                 className="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:brightness-105 disabled:opacity-55 text-slate-950 py-2 rounded-lg font-black text-xs uppercase tracking-wider transition active:scale-95"
               >
-                {loading ? 'Creating Account...' : 'Register & Buy'}
+                {loading ? 'Creating Account...' : 'Register & Get'}
               </button>
             </form>
           )}

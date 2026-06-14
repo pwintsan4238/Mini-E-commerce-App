@@ -227,10 +227,10 @@ export default function OrderHistory({
           >
             {/* Header */}
             <div className="p-3 bg-slate-950 border-b border-slate-900 flex justify-between items-center">
-              <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5">
                 <Receipt className="w-4 h-4 text-amber-500 animate-pulse" />
                 <span className="font-display font-black text-xs text-white uppercase tracking-wider">
-                  Payment Receipt Voucher
+                  Receipt Voucher
                 </span>
               </div>
               <button
@@ -245,9 +245,9 @@ export default function OrderHistory({
 
             {/* Receipt Image Box */}
             <div className="p-3 bg-slate-950 flex justify-center items-center h-80 border-b border-slate-900 overflow-hidden relative group">
-              <img
+                <img
                 src={activeReceipt.url}
-                alt="Payment proof screenshot"
+                alt="Proof screenshot"
                 className="max-h-full max-w-full object-contain rounded-md shadow-lg"
                 referrerPolicy="no-referrer"
               />

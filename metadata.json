@@ -1,6 +1,6 @@
 {
   "name": "Remix: Remix: Remix: Remix: AI Telegram Mini App - Myanmar Coins Top-Up",
-  "description": "An AI-powered Telegram Mini App e-commerce platform for securing TikTok coins, MLBB Diamonds, PUBG Mobile UC, and more, tailored for Myanmar gamers with KBZPay, WaveMoney, and Burmese language support.",
+  "description": "An AI-powered Telegram Mini App e-commerce platform for securing TikTok coins, MLBB Diamonds, PUBG Mobile UC, and more, tailored for Myanmar gamers with local provider support and Burmese language support.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"

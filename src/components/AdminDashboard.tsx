@@ -796,20 +796,20 @@ export default function AdminDashboard({
             </div>
           </div>
 
-          {/* Revenue Breakdown by Payment Method */}
+          {/* Revenue Breakdown by Provider */}
           <div className="bg-slate-900/40 p-3.5 rounded-xl border border-slate-900 space-y-3.5">
             <div>
               <h3 className="text-xs font-black text-white uppercase tracking-wider">
                 {t.adminVolumeByBank || "Volume by Bank/Wallet Method"}
               </h3>
-              <p className="text-[9px] text-slate-500 font-mono">Voucher payment gateway share</p>
+              <p className="text-[9px] text-slate-500 font-mono">Voucher provider share</p>
             </div>
 
             <div className="space-y-2.5">
-              {['kbzpay', 'wavepay'].map(method => {
+                {['kbzpay', 'wavepay'].map(method => {
                 const value = paymentRevenue[method] || 0;
                 const percentage = revenueMmk > 0 ? Math.round((value / revenueMmk) * 100) : 0;
-                const label = method === 'kbzpay' ? 'KBZPay' : 'WavePay/Money';
+                const label = method === 'kbzpay' ? 'KBZ' : 'Wave';
                 return (
                   <div key={method} className="space-y-1">
                     <div className="flex justify-between text-[10px]">

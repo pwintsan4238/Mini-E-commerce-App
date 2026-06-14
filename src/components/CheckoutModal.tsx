@@ -225,7 +225,7 @@ export default function CheckoutModal({
                   <X className="w-6 h-6 text-slate-950" />
                 </div>
                 <h3 className="font-extrabold text-[13px] text-rose-500 uppercase tracking-wider">
-                  Payment Denied
+                  Action Denied
                 </h3>
                 <p className="text-[9px] text-rose-400 font-mono italic">
                   Automatic OCR Verification Failed
@@ -308,7 +308,7 @@ export default function CheckoutModal({
         <div className="flex items-center justify-between p-3 border-b border-slate-800 bg-slate-900">
           <div>
             <h3 className="font-extrabold text-[12px] text-white">
-              Checkout Cart - {cartItems.reduce((sum, i) => sum + i.quantity, 0)} Items
+              Cart - {cartItems.reduce((sum, i) => sum + i.quantity, 0)} Items
             </h3>
             <p className="text-[10px] text-amber-400 font-bold font-mono">
               Total MMK: {aggregatePrice.toLocaleString()}&nbsp;K
@@ -461,7 +461,7 @@ export default function CheckoutModal({
                       : 'text-slate-400 hover:text-slate-200'
                   }`}
                 >
-                  {payment.id === 'kbzpay' ? 'KPay' : payment.id === 'wavepay' ? 'Wave' : 'CB'}
+                  {payment.id === 'kbzpay' ? 'KBZ' : payment.id === 'wavepay' ? 'Wave' : 'CB'}
                 </button>
               ))}
             </div>
@@ -566,7 +566,7 @@ export default function CheckoutModal({
             disabled={isSubmitLoading}
             className="flex-1 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-slate-950 py-1.5 rounded-lg font-black text-xs uppercase cursor-pointer active:scale-95 transition-all"
           >
-            {isSubmitLoading ? 'Saving...' : `Pay Total (${aggregatePrice.toLocaleString()} K)`}
+            {isSubmitLoading ? 'Saving...' : `Confirm Total (${aggregatePrice.toLocaleString()} K)`}
           </button>
         </div>
 

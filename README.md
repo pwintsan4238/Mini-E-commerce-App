@@ -18,3 +18,19 @@ View your app in AI Studio: https://ai.studio/apps/77ac7765-81d9-44df-9db1-b6ea8
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
 3. Run the app:
    `npm run dev`
+
+## Supabase setup
+
+This project supports Supabase for persistent storage. To enable it:
+
+- Create a Supabase project at https://app.supabase.com
+- In the SQL editor, run the schema file: `supabase/schema.sql` to create required tables
+ - In the SQL editor, run the schema file: `migrations/000_init_tables.sql` to create required tables
+- Copy `.env.example` to `.env` and set `SUPABASE_URL` and `SUPABASE_ANON_KEY`
+- Install the JS client: `npm install @supabase/supabase-js`
+- Start the dev server: `npm run dev`
+
+Notes:
+- New user registrations are created with `approved = false` and cannot login until an admin approves them via the admin endpoint `POST /api/admin/users/:id/approve`.
+- Use the Supabase SQL editor or `psql` to inspect data contents for `users`, `orders`, `products`, and `data_feeds`.
+
