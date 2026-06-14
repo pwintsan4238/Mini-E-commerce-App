@@ -2,7 +2,7 @@
 -- Run this using the Supabase SQL editor or psql connected to your Supabase DB
 
 CREATE TABLE IF NOT EXISTS "users" (
-  id text PRIMARY KEY,
+  id text PRIMARY KEY DEFAULT gen_random_uuid()::text,
   "telegramUsername" text UNIQUE NOT NULL,
   "displayName" text,
   "contactPhone" text,
@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS "users" (
   "coinsBalance" integer DEFAULT 0,
   "totalOrdersCount" integer DEFAULT 0,
   "approved" boolean DEFAULT false,
+  "updatedAt" timestamptz,
   created_at timestamptz DEFAULT now()
 );
 
